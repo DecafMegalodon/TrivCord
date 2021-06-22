@@ -3,6 +3,7 @@ import credentials
 import trivgame
 
 client = discord.Client()
+channels = [855129476480761888]
 games = {}
 prefix = "."
 
@@ -18,6 +19,8 @@ async def on_message(message):
     if message.channel.id in games:  #The message was sent in a channel with an active game
         if games[message.channel.id].check_answer(message.content):
             await message.channel.send('That is the correct answer :partying_face: ')
+            games[message.channel.id].grab_new_question()
+            await message.channel.send(games[message.channel.id].get_cur_quesiton())
         else:
             await message.channel.send('That was not the correct answer')
 
@@ -29,11 +32,14 @@ async def on_message(message):
             await message.channel.send('Trivia is already running here!')
             return
         else:
+            if message.channel.id not in channels:
+                await message.channel.send('Sorry, trivia is not allowlisted in this channel at this time')
+                return
             await message.channel.send('Loading trivia...')
             cur_game = trivgame.trivgame(message.channel.id)
             games[message.channel.id] = cur_game
             cur_game.grab_new_question()
-            await message.channel.send(cur_game.get_cur_quesiton())
+            await message.channel.send('`' + cur_game.get_cur_quesiton() + '`')
 
 
 client.run(credentials.oauth2_token)
