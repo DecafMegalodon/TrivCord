@@ -6,11 +6,13 @@ questionlist = [("Let'S Get Graphic: In 1987 this online company came up with th
                         ("Canadian Capitals: Nova Scotia", "Halifax")]
 
 class trivgame:
-    def __init__(self, channel_ID):
-        self.channel = channel_ID
+    def __init__(self, channel):
+        self.channel = channel
         self.question_type = "Standard"
         self.question = "Test question"
         self.answers = ["test answer"]
+        self.current_timer = None
+        self.current_hint = 0
         self.hints = ["Hints did not initialize correctly", 
                             "Hints did not initialize correctly 2",
                             "Hints did not initialize correctly 3"]
@@ -19,9 +21,14 @@ class trivgame:
         rand_question_data = questionlist[random.randint(0,len(questionlist)-1)]
         self.question = rand_question_data[0]
         self.answers = [rand_question_data[1].lower()]
+        self.current_hint = 1
         
     def check_answer(self, guess):
         return guess.lower() in self.answers
         
     def get_cur_quesiton(self):
         return self.question
+        
+    def randomize_timer_id(self):
+        self.current_timer = random.random()
+        return self.current_timer
