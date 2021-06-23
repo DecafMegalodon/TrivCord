@@ -2,6 +2,7 @@ import discord
 import credentials
 import trivgame
 import time
+import asyncio
 import random  #Random timer IDs
 
 client = discord.Client()
@@ -21,9 +22,8 @@ async def on_message(message):
     if message.channel.id in games:  #The message was sent in a channel with an active game
         if games[message.channel.id].check_answer(message.content):
             await message.channel.send('That is the correct answer :partying_face: ')
-            #Stop existing timers
-            #Fetch new question
-            #Start timer for next question to start
+            games[message.channel.id].game_state = "pre-question"
+            client.dispatch("new_question", games[message.channel.id])
 
     if message.content.startswith(prefix+'hello'):
         await message.channel.send('Hello!')
@@ -34,35 +34,49 @@ async def on_message(message):
             return
         else:
             if message.channel.id not in channels:
-                await message.channel.send('Sorry, trivia is not allowlisted in this channel at this time')
+                await message.channel.send('Sorry, trivia is not enabled in this channel at this time')
                 return
             await message.channel.send('Loading trivia...')
             cur_game = trivgame.trivgame(message.channel)
             games[message.channel.id] = cur_game
-            client.dispatch("new_question", cur_game)
+            client.dispatch("new_question", cur_game, wait_time=0)
 
 @client.event
-async def on_new_question(game):
+async def on_new_question(game,  wait_time=10):
+    await asyncio.sleep(wait_time)
+    if game.trivia_state != "pre-question":
+        await game.channel.send("Attempted to transition from " + game.trivia_state + " to question state invalidly")
+        return
+    game.trivia_state = "question"
     #Grab new question
     game.grab_new_question()
     #Send question text
     await game.channel.send(game.get_cur_quesiton())
-    await game.channel.send(game.hints[0])
-    #Queue hint timer
-    timer_id = game.randomize_timer_id()
-    time.sleep(10)
-    client.dispatch("hint_timer", game, timer_id)
+    #And the hint
+    client.dispatch("display_hint", game, wait_time=0)
 
 @client.event
-async def on_hint_timer(game, timer_ID):
-    #check if our timer is the current timer
-    #if we haven't changed states, it will match
-    #if we have, the ID won't match and we'll just throw the timer away
-    print("Timer ran!")
-    if timer_ID != game.current_timer:
+async def on_display_hint(game, wait_time=10):
+    '''Display a hint, if we're in a quesiton state. Automatically advance hint number for next hint'''
+    await asyncio.sleep(wait_time)
+    if game.trivia_state != "question":
         return
-    await game.channel.send("This would be a hint")
-    print("And passed our ID check!")
-    
+    if game.current_hint == 3:  #Did we run out of time/hints?
+        game.trivia_state = 'post-question'
+        client.dispatch("question_over", game)
+        return
+        
+    await game.channel.send("Hint %d: %s" % (game.current_hint + 1, game.hints[game.current_hint]))
+    game.current_hint += 1
+    client.dispatch("display_hint", game)
+
+@client.event
+async def on_question_over(game):
+    #"Dang! We ran out of time without completing the question"
+    if game.trivia_state != 'post-question':
+        return
+    game.trivia_state = 'pre-question'
+    await game.channel.send("Womp womp. We didn't get the answer :slight_frown:")
+    client.dispatch("new_question", game, 10)
 
 client.run(credentials.oauth2_token)
