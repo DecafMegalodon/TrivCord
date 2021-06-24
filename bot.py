@@ -24,12 +24,16 @@ async def on_message(message):
             await message.channel.send('That is the correct answer :partying_face: ')
             games[message.channel.id].trivia_state = "pre-question"
             client.dispatch("new_question", games[message.channel.id])
+        if message.content.startswith(prefix+'stop'):
+            games[message.channel.id].trivia_state = "stopped"
+            await message.channel.send('Trivia has been insta-stopped! :exploding_head:')
 
     if message.content.startswith(prefix+'hello'):
         await message.channel.send('Hello!')
         
+        
     if message.content == prefix + 'start':
-        if message.channel.id in games:
+        if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
             await message.channel.send('Trivia is already running here!')
             return
         else:
@@ -51,7 +55,7 @@ async def on_new_question(game,  wait_time=10):
     #Grab new question
     game.grab_new_question()
     #Send question text
-    await game.channel.send(game.get_cur_quesiton())
+    await game.channel.send("%d: `%s`" % (random.randint(1,99), game.get_cur_quesiton()))
     #And the hint
     client.dispatch("display_hint", game, wait_time=0)
 
@@ -66,7 +70,7 @@ async def on_display_hint(game, wait_time=10):
         client.dispatch("question_over", game)
         return
         
-    await game.channel.send("Hint %d: %s" % (game.current_hint + 1, game.hints[game.current_hint]))
+    await game.channel.send("Hint %d: `%s`" % (game.current_hint + 1, game.hints[game.current_hint]))
     game.current_hint += 1
     client.dispatch("display_hint", game)
 

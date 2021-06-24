@@ -1,6 +1,7 @@
 import random
+import re
 
-questionlist = [("Let'S Get Graphic: In 1987 this online company came up with the GIF, a graphics interchange format", "CompuServe"),
+questionlist = [("Let's Get Graphic: In 1987 this online company came up with the GIF, a graphics interchange format", "CompuServe"),
                         ("Which organization was awarded the Nobel Peace Prize during WW II", "the red cross"),
                         ("Science: What name is given to the effect that the Earth is gradually becoming warmer", "global warming"),
                         ("Canadian Capitals: Nova Scotia", "Halifax")]
@@ -15,15 +16,18 @@ class trivgame:
         #  States (so far):
         #  "pre-question"
         #  "question"
+        #  "post-question"
         self.current_hint = 0
-        self.hints = ["Hints did not initialize correctly", 
-                            "Hints did not initialize correctly 2",
-                            "Hints did not initialize correctly 3"]
+        self.hints = ["Hints have not been implemented yet", 
+                            "Second hints haven't been implemented yet",
+                            "This is a third hint"]
         
     def grab_new_question(self):
         rand_question_data = questionlist[random.randint(0,len(questionlist)-1)]
         self.question = rand_question_data[0]
         self.answers = [rand_question_data[1].lower()]
+        self.hints[0] = re.sub(r'\S', '*', self.answers[0])
+        self.hints[2] = "(Testing mode) The answer is %s" % self.answers[0]
         self.current_hint = 0
         
     def check_answer(self, guess):
