@@ -38,8 +38,11 @@ class trivgame:
         divider = min(divider, len(ans)-1)
         hint = ans[:divider]
         masked = ans[divider:]
-        masked = re.sub(r'\S', '*', masked)
-        hint += masked
+        for char in masked:
+            if char in " ,\'\"!@#$%^&*(){}[]?":
+                hint += char
+            else:
+                hint += "*"
     # hint = self.hint2 if self.hint2 != None else hint
         self.hints[1] = hint
         self.hints[2] = "(Testing mode) The answer is %s" % ans
