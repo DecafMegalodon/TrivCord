@@ -17,20 +17,36 @@ class trivgame:
         #  "pre-question"
         #  "question"
         #  "post-question"
+        self.questionDB = open('questions.txt', 'r').readlines()
         self.current_hint = 0
         self.hints = ["Hints have not been implemented yet", 
                             "Second hints haven't been implemented yet",
                             "This is a third hint"]
         
     def grab_new_question(self):
-        rand_question_data = questionlist[random.randint(0,len(questionlist)-1)]
-        self.question = rand_question_data[0]
-        self.answers = [rand_question_data[1].lower()]
-        self.hints[0] = re.sub(r'\S', '*', self.answers[0])
-        self.hints[2] = "(Testing mode) The answer is %s" % self.answers[0]
+        answer_line = self.questionDB[random.randint(0,len(self.questionDB)-1)]
+        self.question, self.answers = answer_line.split('*')
+        self.answers = [self.answers.lower().strip()]
+        ans = self.answers[0]  #Todo: Make this choose a random answer, if there's multiple
+        self.hints[0] = re.sub(r'\S', '*', ans)
+        
+        #second hint
+        hint = ''
+        ratio = .3
+        divider = int(len(ans) * ratio)
+        divider = min(divider, 3)
+        divider = min(divider, len(ans)-1)
+        hint = ans[:divider]
+        masked = ans[divider:]
+        masked = re.sub(r'\S', '*', masked)
+        hint += masked
+    # hint = self.hint2 if self.hint2 != None else hint
+        self.hints[1] = hint
+        self.hints[2] = "(Testing mode) The answer is %s" % ans
         self.current_hint = 0
         
     def check_answer(self, guess):
+        print(guess.lower(), self.answers)
         return guess.lower() in self.answers
         
     def get_cur_quesiton(self):

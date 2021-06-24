@@ -6,7 +6,7 @@ import asyncio
 import random  #Random timer IDs
 
 client = discord.Client()
-channels = [855129476480761888]
+channels = [855129476480761888, 857332550724091924]
 games = {}
 prefix = "."
 
@@ -49,7 +49,7 @@ async def on_message(message):
 async def on_new_question(game,  wait_time=10):
     await asyncio.sleep(wait_time)
     if game.trivia_state != "pre-question":
-        await game.channel.send("Unexpected state transition from %s to question" % game.trivia_state)
+        #await game.channel.send("Unexpected state transition from %s to question" % game.trivia_state)
         return
     game.trivia_state = "question"
     #Grab new question
