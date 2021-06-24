@@ -20,9 +20,9 @@ async def on_message(message):
         return
         
     if message.channel.id in games:  #The message was sent in a channel with an active game
-        if games[message.channel.id].check_answer(message.content):
+        if games[message.channel.id].trivia_state == 'question' and games[message.channel.id].check_answer(message.content):
             await message.channel.send('That is the correct answer :partying_face: ')
-            games[message.channel.id].game_state = "pre-question"
+            games[message.channel.id].trivia_state = "pre-question"
             client.dispatch("new_question", games[message.channel.id])
 
     if message.content.startswith(prefix+'hello'):
@@ -45,7 +45,7 @@ async def on_message(message):
 async def on_new_question(game,  wait_time=10):
     await asyncio.sleep(wait_time)
     if game.trivia_state != "pre-question":
-        await game.channel.send("Attempted to transition from " + game.trivia_state + " to question state invalidly")
+        await game.channel.send("Unexpected state transition from %s to question" % game.trivia_state)
         return
     game.trivia_state = "question"
     #Grab new question
