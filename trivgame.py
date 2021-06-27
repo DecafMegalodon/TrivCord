@@ -1,11 +1,6 @@
 import random
 import re
 
-questionlist = [("Let's Get Graphic: In 1987 this online company came up with the GIF, a graphics interchange format", "CompuServe"),
-                        ("Which organization was awarded the Nobel Peace Prize during WW II", "the red cross"),
-                        ("Science: What name is given to the effect that the Earth is gradually becoming warmer", "global warming"),
-                        ("Canadian Capitals: Nova Scotia", "Halifax")]
-
 class trivgame:
     def __init__(self, channel):
         self.channel = channel
@@ -24,11 +19,19 @@ class trivgame:
                             "This is a third hint"]
         
     def grab_new_question(self):
+        unmasked_chars = ",.\\/!@#$%^&()[]{};:'\" "
         answer_line = self.questionDB[random.randint(0,len(self.questionDB)-1)]
         self.question, self.answers = answer_line.split('*')
         self.answers = [self.answers.lower().strip()]
         ans = self.answers[0]  #Todo: Make this choose a random answer, if there's multiple
-        self.hints[0] = re.sub(r'\S', '*', ans)
+        
+        hint = ""
+        for char in ans:
+            if char not in unmasked_chars:
+                hint += '*'
+            else:
+                hint += char
+        self.hints[0] = hint
         
         #second hint
         hint = ''
@@ -39,7 +42,7 @@ class trivgame:
         hint = ans[:divider]
         masked = ans[divider:]
         for char in masked:
-            if char in " ,\'\"!@#$%^&*(){}[]?":
+            if char in unmasked_chars:
                 hint += char
             else:
                 hint += "*"
@@ -49,7 +52,6 @@ class trivgame:
         self.current_hint = 0
         
     def check_answer(self, guess):
-        print(guess.lower(), self.answers)
         return guess.lower() in self.answers
         
     def get_cur_quesiton(self):
