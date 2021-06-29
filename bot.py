@@ -21,7 +21,7 @@ async def on_message(message):
         
     if message.channel.id in games:  #The message was sent in a channel with an active game
         if games[message.channel.id].trivia_state == 'question' and games[message.channel.id].check_answer(message.content):
-            await message.channel.send('That is the correct answer :partying_face: ')
+            await message.channel.send("%s got the correct answer `%s`" % (message.author, message.content))
             games[message.channel.id].trivia_state = "pre-question"
             client.dispatch("new_question", games[message.channel.id])
         if message.content.startswith(prefix+'stop'):
