@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 
 unmasked_chars = ",.\\/!@#$%^&()[]{};:'\" "
+vowels = "aeiou"
 mask_char = "*"
 hint_ratio = .3  #The percent of characters to displayed for hint 2
 
@@ -14,6 +15,7 @@ class trivgame:
         self.answers = ["Uninitialized answer"]
         self.display_answer = "unintitialized"  #The answer we're building hints off of. Possibly just one of many
         self.trivia_state = "pre-question"
+        self.question_start = None
         #  States (so far):
         #  "pre-question"
         #  "question"
@@ -30,10 +32,10 @@ class trivgame:
         self.question = star_split[0]
         self.answers = [ans.lower().strip() for ans in star_split[1:]]
         self.generate_hints()
+        self.question_start = datetime.now()
         self.current_hint = 0
         
     def check_answer(self, guess):
-        print(guess, self.answers)
         return guess.lower() in self.answers
         
     def get_cur_quesiton(self):
@@ -48,5 +50,6 @@ class trivgame:
                                         3, len(hint_answer) - 1)
         hint_2 = hint_answer[:hint_2_divider]
         hint_2 += ''.join(hint_1[hint_2_divider:])
-        hint_3 = "NYI"
+        hint_3 = hint_2[:hint_2_divider] + ''.join([char if char in unmasked_chars+vowels else mask_char 
+                                                                            for char in hint_answer[hint_2_divider:]])
         self.hints = [hint_1, hint_2, hint_3]
