@@ -4,6 +4,7 @@ import trivgame
 import time
 import asyncio
 import random  #Random timer IDs
+from datetime import datetime
 
 client = discord.Client()
 channels = [855129476480761888, 857332550724091924]
@@ -20,12 +21,15 @@ async def on_message(message):
         return
         
     if message.channel.id in games:  #The message was sent in a channel with an active game
-        if games[message.channel.id].trivia_state == 'question' and games[message.channel.id].check_answer(message.content):
-            await message.channel.send("%s got the correct answer `%s`" % (message.author, message.content))
-            games[message.channel.id].trivia_state = "pre-question"
-            client.dispatch("new_question", games[message.channel.id])
+        game = games[message.channel.id]
+        if game.trivia_state == 'question' and game.check_answer(message.content):
+            await message.channel.send("%s got the correct answer `%s` in %d seconds" % (
+                                                            message.author,                    message.content, 
+                                                            (datetime.now() - game.question_start).total_seconds() ))
+            game.trivia_state = "pre-question"
+            client.dispatch("new_question", game)
         if message.content.startswith(prefix+'stop'):
-            games[message.channel.id].trivia_state = "stopped"
+            game.trivia_state = "stopped"
             await message.channel.send('Trivia has been insta-stopped! :exploding_head:')
 
     if message.content.startswith(prefix+'hello'):
