@@ -16,10 +16,6 @@ class trivgame:
         self.display_answer = "unintitialized"  #The answer we're building hints off of. Possibly just one of many
         self.trivia_state = "pre-question"
         self.question_start = None
-        #  States (so far):
-        #  "pre-question"
-        #  "question"
-        #  "post-question"
         self.questionDB = open('questions.txt', 'r').readlines()  #Temporary until the full DB setup is available
         self.current_hint = 0  #The next time a hint is displayed, show this one
         self.hints = ["Uninit 1",

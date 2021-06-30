@@ -35,7 +35,6 @@ async def on_message(message):
     if message.content.startswith(prefix+'hello'):
         await message.channel.send('Hello!')
         
-        
     if message.content == prefix + 'start':
         if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
             await message.channel.send('Trivia is already running here!')
@@ -53,10 +52,9 @@ async def on_message(message):
 async def on_new_question(game,  wait_time=10):
     await asyncio.sleep(wait_time)
     if game.trivia_state != "pre-question":
-        #await game.channel.send("Unexpected state transition from %s to question" % game.trivia_state)
+        #print("Unexpected state transition from %s to question" % game.trivia_state)
         return
     game.trivia_state = "question"
-    #Grab new question
     game.grab_new_question()
     #Send question text
     await game.channel.send("%d: `%s`" % (random.randint(1,99), game.get_cur_quesiton()))
@@ -84,7 +82,7 @@ async def on_question_over(game):
     if game.trivia_state != 'post-question':
         return
     game.trivia_state = 'pre-question'
-    await game.channel.send("Times up! The correct answer was %s" % game.answers[0])
+    await game.channel.send("Time's up! The correct answer was `%s`" % game.answers[0])
     client.dispatch("new_question", game, 10)
 
 client.run(credentials.oauth2_token)
