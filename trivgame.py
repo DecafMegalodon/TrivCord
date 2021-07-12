@@ -36,7 +36,7 @@ class trivgame:
         self.question_start = datetime.now()
         self.current_hint = 0
         self.canonical_answers = [canonicalize_answer(ans) for ans in self.answers]
-        self.display_answer_index = random.randint(0, len(self.answers))
+        self.display_answer_index = random.randint(0, len(self.answers) - 1)
         
     def check_answer(self, guess):
         #todo: implement UOL
