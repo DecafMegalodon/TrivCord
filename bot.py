@@ -8,6 +8,7 @@ from datetime import datetime
 
 client = discord.Client()
 channels = [855129476480761888, 857332550724091924]
+privs = [181457913490046976]  #Users with access to privledged commands
 games = {}
 prefix = "."
 
@@ -42,7 +43,14 @@ async def on_message(message):
 
     if message.content.startswith(prefix+'hello'):
         await message.channel.send('Hello!')
-        
+
+    if message.content.startswith(prefix+'die'):
+        if message.author.id in privs:
+            await message.channel.send('Goodbye :(')
+            await client.close()
+        else:
+            await message.channel.send("You haven't been given the privledges to use this command")
+            
     if message.content == prefix + 'start':
         if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
             await message.channel.send('Trivia is already running here!')
