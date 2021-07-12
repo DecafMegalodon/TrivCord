@@ -14,6 +14,7 @@ class trivgame:
         self.question = "Uninitialized question"
         self.answers = ["Uninitialized answer"]
         self.display_answer = "unintitialized"  #The answer we're building hints off of. Possibly just one of many
+        self.canonical_answers = ["Uninitialized"]
         self.trivia_state = "pre-question"
         self.question_start = None
         self.questionDB = open('questions.txt', 'r').readlines()  #Temporary until the full DB setup is available
@@ -30,15 +31,16 @@ class trivgame:
         self.generate_hints()
         self.question_start = datetime.now()
         self.current_hint = 0
+        self.canonical_answers = [canonicalize_answer(ans) for ans in self.answers]
         
     def check_answer(self, guess):
-        return guess.lower() in self.answers
+        return canonicalize_answer(guess) in self.canonical_answers
         
     def get_cur_quesiton(self):
         return self.question
 
     def generate_hints(self):
-    #Todo: add per-question type hints, as needed
+    #Todo: add per-question-type hints, as needed
         hint_answer = random.choice(self.answers)
         hint_all_1, hint_all_2, hint_all_3 = [], [], []
         for ans in self.answers:
@@ -55,3 +57,7 @@ class trivgame:
             hint_all_3.append(hint_3)
         self.hints = [hint_all_1, hint_all_2, hint_all_3]
         print(self.hints)
+
+#Todo: consider stripping characters too
+def canonicalize_answer(answer):
+    return answer.lower()
