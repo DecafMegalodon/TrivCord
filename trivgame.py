@@ -35,7 +35,13 @@ class trivgame:
         self.display_answer_index = random.randint(0, len(self.answers))
         
     def check_answer(self, guess):
-        return canonicalize_answer(guess) in self.canonical_answers
+        #todo: implement UOL
+        canon_ans = canonicalize_answer(guess)
+        correct = canon_ans in self.canonical_answers
+        correct_index = self.answers.index(canon_ans)
+        self.answers.pop(correct_index)
+        [hints.pop(correct_index) for hints in self.hints]
+        return correct
         
     def get_cur_quesiton(self):
         return self.question
