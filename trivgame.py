@@ -38,14 +38,20 @@ class trivgame:
         return self.question
 
     def generate_hints(self):
+    #Todo: add per-question type hints, as needed
         hint_answer = random.choice(self.answers)
-        self.display_answer = hint_answer
-        hint_1 = ''.join([char if char in unmasked_chars else mask_char
-                                for char in hint_answer])
-        hint_2_divider = min(int(len(hint_answer) * hint_ratio),
-                                        3, len(hint_answer) - 1)
-        hint_2 = hint_answer[:hint_2_divider]
-        hint_2 += ''.join(hint_1[hint_2_divider:])
-        hint_3 = hint_2[:hint_2_divider] + ''.join([char if char in unmasked_chars+vowels else mask_char 
-                                                                            for char in hint_answer[hint_2_divider:]])
-        self.hints = [hint_1, hint_2, hint_3]
+        hint_all_1, hint_all_2, hint_all_3 = [], [], []
+        for ans in self.answers:
+            hint_1 = ''.join([char if char in unmasked_chars else mask_char
+                                    for char in ans])
+            hint_2_divider = min(int(len(ans) * hint_ratio),  #Show the first `hint_ratio` proportion of the answer
+                                            3, len(ans) - 1)
+            hint_2 = ans[:hint_2_divider]
+            hint_2 += ''.join(hint_1[hint_2_divider:])
+            hint_3 = hint_2[:hint_2_divider] + ''.join([char if char in unmasked_chars+vowels else mask_char  #Reveal vowels in the part not revealed by hint 2
+                                                                                for char in ans[hint_2_divider:]])
+            hint_all_1.append(hint_1)
+            hint_all_2.append(hint_2)
+            hint_all_3.append(hint_3)
+        self.hints = [hint_all_1, hint_all_2, hint_all_3]
+        print(self.hints)
