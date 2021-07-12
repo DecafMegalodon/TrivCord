@@ -26,8 +26,16 @@ async def on_message(message):
             await message.channel.send("%s got the correct answer `%s` in %d seconds" % (
                                                             message.author,                    message.content, 
                                                             (datetime.now() - game.question_start).total_seconds() ))
-            game.trivia_state = "pre-question"
-            client.dispatch("new_question", game)
+            if game.question_type == "standard":
+                game.trivia_state = "pre-question"
+                client.dispatch("new_question", game)
+                return
+            if len(game.answers) == 0:  #We got all the answers in a KAOS
+                await message.channel.send("That's all the answers for that KAOS!")
+                game.trivia_state = "pre-question"
+                client.dispatch("new_question", game)
+                return
+
         if message.content.startswith(prefix+'stop'):
             game.trivia_state = "stopped"
             await message.channel.send('Trivia has been insta-stopped! :exploding_head:')
@@ -72,7 +80,13 @@ async def on_display_hint(game, wait_time=10):
         client.dispatch("question_over", game)
         return
         
-    await game.channel.send("Hint %d: `%s`" % (game.current_hint + 1, game.hints[game.current_hint][game.display_answer_index]))
+    hint_data = ""
+    if game.question_type == "standard":
+        hint_data = game.hints[game.current_hint][game.display_answer_index] 
+    elif game.question_type == "KAOS":
+        hint_data = "`, `".join(game.hints[game.current_hint])
+        
+    await game.channel.send("Hint %d: `%s`" % (game.current_hint + 1, hint_data))
     game.current_hint += 1
     client.dispatch("display_hint", game)
 

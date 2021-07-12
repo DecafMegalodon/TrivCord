@@ -27,6 +27,10 @@ class trivgame:
         answer_line = self.questionDB[random.randint(0,len(self.questionDB)-1)]
         star_split = answer_line.split('*')
         self.question = star_split[0]
+        if self.question.startswith("KAOS"):
+            self.question_type = "KAOS"
+        else:
+            self.question_type = "standard"
         self.answers = [ans.lower().strip() for ans in star_split[1:]]
         self.generate_hints()
         self.question_start = datetime.now()
@@ -38,9 +42,11 @@ class trivgame:
         #todo: implement UOL
         canon_ans = canonicalize_answer(guess)
         correct = canon_ans in self.canonical_answers
-        correct_index = self.answers.index(canon_ans)
-        self.answers.pop(correct_index)
-        [hints.pop(correct_index) for hints in self.hints]
+        if correct:
+            correct_index = self.answers.index(canon_ans)
+            self.canonical_answers.pop(correct_index)
+            self.answers.pop(correct_index)
+            [hints.pop(correct_index) for hints in self.hints]
         return correct
         
     def get_cur_quesiton(self):
