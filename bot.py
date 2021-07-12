@@ -96,7 +96,10 @@ async def on_question_over(game):
     if game.trivia_state != 'post-question':
         return
     game.trivia_state = 'pre-question'
-    await game.channel.send("Time's up! The correct answer was `%s`" % game.answers[0])
+    if game.question_type == "standard":
+        await game.channel.send("Time's up! The correct answer was `%s`" % game.answers[0])
+    elif game.question_type == "KAOS":
+        await game.channel.send("Time's up! The remaining answers were `%s`" % game.answers)
     client.dispatch("new_question", game, 10)
 
 client.run(credentials.oauth2_token)
