@@ -72,7 +72,7 @@ async def on_display_hint(game, wait_time=10):
         client.dispatch("question_over", game)
         return
         
-    await game.channel.send("Hint %d: `%s`" % (game.current_hint + 1, game.hints[game.current_hint]))
+    await game.channel.send("Hint %d: `%s`" % (game.current_hint + 1, game.hints[game.current_hint][game.display_answer_index]))
     game.current_hint += 1
     client.dispatch("display_hint", game)
 

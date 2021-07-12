@@ -13,7 +13,7 @@ class trivgame:
         self.question_type = "standard"
         self.question = "Uninitialized question"
         self.answers = ["Uninitialized answer"]
-        self.display_answer = "unintitialized"  #The answer we're building hints off of. Possibly just one of many
+        self.display_answer_index = 0 #The answer we're building hints off of. Possibly just one of many
         self.canonical_answers = ["Uninitialized"]
         self.trivia_state = "pre-question"
         self.question_start = None
@@ -32,6 +32,7 @@ class trivgame:
         self.question_start = datetime.now()
         self.current_hint = 0
         self.canonical_answers = [canonicalize_answer(ans) for ans in self.answers]
+        self.display_answer_index = random.randint(0, len(self.answers))
         
     def check_answer(self, guess):
         return canonicalize_answer(guess) in self.canonical_answers
