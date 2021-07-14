@@ -1,6 +1,6 @@
 import discord
 import credentials
-import trivgame
+import triviatime
 import time
 import asyncio
 import random  #Random timer IDs
@@ -8,6 +8,7 @@ from datetime import datetime
 import triviatime
 
 client = discord.Client()
+trivia = triviatime.triviatime(client)
 privs = [181457913490046976]  #Users with access to privledged commands
 bot_prefix = "."
 
@@ -20,48 +21,21 @@ async def on_message(message):
     if message.author == client.user:  #Don't respond to my own messages
         return
         
-    if message.channel.id in games:  #The message was sent in a channel with an active game
-        game = games[message.channel.id]
-        if game.trivia_state == 'question' and game.check_answer(message.content):
-            await message.channel.send("%s got the correct answer `%s` in %d seconds" % (
-                                                            message.author,                    message.content, 
-                                                            (datetime.now() - game.question_start).total_seconds() ))
-            if game.question_type == "standard":
-                game.trivia_state = "pre-question"
-                client.dispatch("new_question", game)
-                return
-            if len(game.answers) == 0:  #We got all the answers in a KAOS
-                await message.channel.send("That's all the answers for that KAOS!")
-                game.trivia_state = "pre-question"
-                client.dispatch("new_question", game)
-                return
-
-        if message.content.startswith(prefix+'stop'):
-            game.trivia_state = "stopped"
-            await message.channel.send('Trivia has been insta-stopped! :exploding_head:')
-
-    if message.content.startswith(prefix+'hello'):
+    # Send to triviatime for guess checking
+    
+    if message.content.startswith(bot_prefix+'hello'):
         await message.channel.send('Hello!')
+        
+    if message.content.startswith(bot_prefix+'start'):
+        await trivia.start_game(message)
 
-    if message.content.startswith(prefix+'die'):
+    if message.content.startswith(bot_prefix+'die'):
         if message.author.id in privs:
             await message.channel.send('Goodbye :(')
             await client.close()
         else:
             await message.channel.send("You haven't been given the privledges to use this command")
             
-    if message.content == prefix + 'start':
-        if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
-            await message.channel.send('Trivia is already running here!')
-            return
-        else:
-            if message.channel.id not in channels:
-                await message.channel.send('Sorry, trivia is not enabled in this channel at this time')
-                return
-            await message.channel.send('Loading trivia...')
-            cur_game = trivgame.trivgame(message.channel)
-            games[message.channel.id] = cur_game
-            client.dispatch("new_question", cur_game, wait_time=0)
 
 @client.event
 async def on_new_question(game,  wait_time=10):

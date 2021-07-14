@@ -1,11 +1,11 @@
 import discord
 import triviagame
 
+channels = [855129476480761888, 857332550724091924]  #TODO: config this
+games = {}
+
 class triviatime:
-    channels = [855129476480761888, 857332550724091924]  #TODO: config this
-    games = {}
-    
-    def __init__(self, client)
+    def __init__(self, client):
         self.client = client
     
     def on_message(self, message):
@@ -26,16 +26,15 @@ class triviatime:
                     # return
         return
         
-    def start_game(self)
-    # if message.content == prefix + 'start':
-        # if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
-            # await message.channel.send('Trivia is already running here!')
-            # return
-        # else:
-            # if message.channel.id not in channels:
-                # await message.channel.send('Sorry, trivia is not enabled in this channel at this time')
-                # return
-            # await message.channel.send('Loading trivia...')
-            # cur_game = trivgame.trivgame(message.channel)
-            # games[message.channel.id] = cur_game
-            # client.dispatch("new_question", cur_game, wait_time=0)
+    async def start_game(self, message):
+        if message.channel.id in games and games[message.channel.id].trivia_state != "stopped":
+            await message.channel.send('Trivia is already running here!')
+            return
+        else:
+            if message.channel.id not in channels:
+                await message.channel.send('Sorry, trivia is not enabled in this channel at this time')
+                return
+            await message.channel.send('Loading trivia... Except kinda not')
+        # cur_game = trivgame.trivgame(message.channel)
+        # games[message.channel.id] = cur_game
+        # client.dispatch("new_question", cur_game, wait_time=0)
