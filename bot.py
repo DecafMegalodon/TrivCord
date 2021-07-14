@@ -5,12 +5,11 @@ import time
 import asyncio
 import random  #Random timer IDs
 from datetime import datetime
+import triviatime
 
 client = discord.Client()
-channels = [855129476480761888, 857332550724091924]
 privs = [181457913490046976]  #Users with access to privledged commands
-games = {}
-prefix = "."
+bot_prefix = "."
 
 @client.event
 async def on_ready():
