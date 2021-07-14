@@ -21,7 +21,7 @@ async def on_message(message):
     if message.author == client.user:  #Don't respond to my own messages
         return
         
-    # Send to triviatime for guess checking
+    await trivia.on_message(message)
     
     if message.content.startswith(bot_prefix+'hello'):
         await message.channel.send('Hello!')
@@ -36,6 +36,12 @@ async def on_message(message):
         else:
             await message.channel.send("You haven't been given the privledges to use this command")
             
+
+@client.event
+async def on_message_edit(before, message):
+    if message.author == client.user:  #Don't respond to my own messages
+        return
+    await trivia.on_message(message)
 
 @client.event
 async def on_new_question(game,  wait_time=10):

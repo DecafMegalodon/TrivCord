@@ -7,7 +7,7 @@ vowels = "aeiou"
 mask_char = "*"
 hint_ratio = .3  #The percent of characters to displayed for hint 2
 
-class trivgame:
+class triviagame:
     def __init__(self, channel):
         self.channel = channel
         self.question_type = "standard"
@@ -15,7 +15,7 @@ class trivgame:
         self.answers = ["Uninitialized answer"]
         self.display_answer_index = 0 #The answer we're building hints off of. Possibly just one of many
         self.canonical_answers = ["Uninitialized"]
-        self.trivia_state = "pre-question"
+        self.game_state = "pre-question"
         self.question_start = None
         self.questionDB = open('questions.txt', 'r').readlines()  #Temporary until the full DB setup is available
         self.current_hint = 0  #The next time a hint is displayed, show this one
