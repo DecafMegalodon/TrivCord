@@ -72,7 +72,7 @@ class triviagame:
         
     async def send_new_question(self, client):
         if self.game_state != "pre-question":
-            await self.channel.send("Hmm state weirdness", self.game_state)
+            await self.channel.send("Hmm state weirdness" + str(self.game_state))
             return
         self.grab_new_question()
         self.game_state = "question"
