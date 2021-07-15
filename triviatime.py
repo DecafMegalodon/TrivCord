@@ -40,3 +40,12 @@ class triviatime:
             triviatime.games[message.channel.id] = new_game
             self.client.dispatch("new_question", new_game, wait_time=0)
         
+    async def do_stop_trivia(self, channel_id):
+        if channel_id in triviatime.games:
+            game = triviatime.games[channel_id]
+            if game.game_state != "stopped":
+                await game.channel.send("Shutting down trivia")
+                game.game_state = "stopped"
+                return
+        await game.channel.send("Trivia is already stopped!")
+            

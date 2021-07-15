@@ -29,6 +29,9 @@ async def on_message(message):
         await trivia.start_game(message)
         client.dispatch("test", None)
 
+    if message.content.startswith(bot_prefix+'stop'):
+        await trivia.do_stop_trivia(message.channel.id)
+
     if message.content.startswith(bot_prefix+'die'):
         if message.author.id in privs:
             await message.channel.send('Goodbye :(')
@@ -41,7 +44,7 @@ async def on_message(message):
 async def on_message_edit(before, message):
     if message.author == client.user:  #Don't respond to my own messages
         return
-    await trivia.on_message(message)
+    await trivia.on_message(message)  #Not a typo. Process it as if it's a new message
 
 @client.event
 async def on_new_question(game,  wait_time=10):
