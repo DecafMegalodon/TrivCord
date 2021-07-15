@@ -69,7 +69,44 @@ class triviagame:
             hint_all_2.append(hint_2)
             hint_all_3.append(hint_3)
         self.hints = [hint_all_1, hint_all_2, hint_all_3]
-        print(self.hints)
+        
+    async def send_new_question(self, client):
+        if self.game_state != "pre-question":
+            await self.channel.send("Hmm state weirdness", self.game_state)
+            return
+        self.grab_new_question()
+        self.game_state = "question"
+        await self.channel.send("%d: `%s`" % (random.randint(1,99), self.question))  #send question
+        client.dispatch("display_hint", self, wait_time=0)
+        
+    async def send_hint(self, client):
+        if self.game_state != "question":
+            return
+        if self.current_hint == 3:  #Did we run out of time/hints?
+            self.game_state = 'post-question'
+            client.dispatch("question_over", self)
+            return
+            
+        hint_data = ""
+        if self.question_type == "standard":
+            hint_data = self.hints[self.current_hint][self.display_answer_index] 
+        elif self.question_type == "KAOS":
+            hint_data = "`, `".join(self.hints[self.current_hint])
+            
+        await self.channel.send("Hint %d: `%s`" % (self.current_hint + 1, hint_data))
+        self.current_hint += 1
+        client.dispatch("display_hint", self)
+
+    async def send_question_missed(self, client):
+        if self.game_state != 'post-question':
+            await self.channel.send("Hmm state weirdness (oqm) " + str(self.game_state))
+            return
+        self.game_state = 'pre-question'
+        if self.question_type == "standard":
+            await self.channel.send("Time's up! The correct answer was `%s`" % self.answers[0])
+        elif self.question_type == "KAOS":
+            await self.channel.send("Time's up! The remaining answers were `%s`" % ", ".join(self.answers))
+        client.dispatch("new_question", self, 10)
 
 #Todo: consider stripping characters too
 def canonicalize_answer(answer):

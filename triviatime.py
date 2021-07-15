@@ -38,7 +38,7 @@ class triviatime:
                 await message.channel.send('Sorry, trivia is not enabled in this channel at this time')
                 return
             await message.channel.send('Loading trivia... Except kinda not')
-            triviatime.games[message.channel.id] = triviagame.triviagame(message.channel)
-        # cur_game = trivgame.trivgame(message.channel)
-        # games[message.channel.id] = cur_game
-        # client.dispatch("new_question", cur_game, wait_time=0)
+            new_game = triviagame.triviagame(message.channel)
+            triviatime.games[message.channel.id] = new_game
+            self.client.dispatch("new_question", new_game, wait_time=0)
+        
