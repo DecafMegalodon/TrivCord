@@ -4,7 +4,6 @@ import triviatime
 import time
 import asyncio
 import random  #Random timer IDs
-from datetime import datetime
 import triviatime
 
 client = discord.Client()
