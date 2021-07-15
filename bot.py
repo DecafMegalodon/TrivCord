@@ -30,7 +30,7 @@ async def on_message(message):
         client.dispatch("test", None)
 
     if message.content.startswith(bot_prefix+'stop'):
-        await trivia.do_stop_trivia(message.channel.id)
+        await trivia.do_stop_trivia(message.channel)
 
     if message.content.startswith(bot_prefix+'die'):
         if message.author.id in privs:
