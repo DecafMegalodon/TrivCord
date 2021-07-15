@@ -7,7 +7,7 @@ vowels = "aeiou"
 mask_char = "*"
 hint_ratio = .3  #The percent of characters to displayed for hint 2
 
-class trivgame:
+class triviagame:
     def __init__(self, channel):
         self.channel = channel
         self.question_type = "standard"
@@ -15,7 +15,7 @@ class trivgame:
         self.answers = ["Uninitialized answer"]
         self.display_answer_index = 0 #The answer we're building hints off of. Possibly just one of many
         self.canonical_answers = ["Uninitialized"]
-        self.trivia_state = "pre-question"
+        self.game_state = "pre-question"
         self.question_start = None
         self.questionDB = open('questions.txt', 'r').readlines()  #Temporary until the full DB setup is available
         self.current_hint = 0  #The next time a hint is displayed, show this one
@@ -69,7 +69,44 @@ class trivgame:
             hint_all_2.append(hint_2)
             hint_all_3.append(hint_3)
         self.hints = [hint_all_1, hint_all_2, hint_all_3]
-        print(self.hints)
+        
+    async def send_new_question(self, client):
+        if self.game_state != "pre-question":
+            await self.channel.send("Hmm state weirdness", self.game_state)
+            return
+        self.grab_new_question()
+        self.game_state = "question"
+        await self.channel.send("%d: `%s`" % (random.randint(1,99), self.question))  #send question
+        client.dispatch("display_hint", self, wait_time=0)
+        
+    async def send_hint(self, client):
+        if self.game_state != "question":
+            return
+        if self.current_hint == 3:  #Did we run out of time/hints?
+            self.game_state = 'post-question'
+            client.dispatch("question_over", self)
+            return
+            
+        hint_data = ""
+        if self.question_type == "standard":
+            hint_data = self.hints[self.current_hint][self.display_answer_index] 
+        elif self.question_type == "KAOS":
+            hint_data = "`, `".join(self.hints[self.current_hint])
+            
+        await self.channel.send("Hint %d: `%s`" % (self.current_hint + 1, hint_data))
+        self.current_hint += 1
+        client.dispatch("display_hint", self)
+
+    async def send_question_missed(self, client):
+        if self.game_state != 'post-question':
+            await self.channel.send("Hmm state weirdness (oqm) " + str(self.game_state))
+            return
+        self.game_state = 'pre-question'
+        if self.question_type == "standard":
+            await self.channel.send("Time's up! The correct answer was `%s`" % self.answers[0])
+        elif self.question_type == "KAOS":
+            await self.channel.send("Time's up! The remaining answers were `%s`" % ", ".join(self.answers))
+        client.dispatch("new_question", self, 10)
 
 #Todo: consider stripping characters too
 def canonicalize_answer(answer):
