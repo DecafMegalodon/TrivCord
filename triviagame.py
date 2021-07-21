@@ -22,6 +22,7 @@ class triviagame:
         self.hints = ["Uninit 1",
                             "Uninit 2",
                             "Uninit 3"]
+        self.last_question_answered = datetime.now()
         
     def grab_new_question(self):
         answer_line = self.questionDB[random.randint(0,len(self.questionDB)-1)]
@@ -46,6 +47,7 @@ class triviagame:
             correct_index = self.answers.index(canon_ans)
             self.canonical_answers.pop(correct_index)
             self.answers.pop(correct_index)
+            self.last_question_answered = datetime.now()
             [hints.pop(correct_index) for hints in self.hints]
         return correct
         
@@ -72,8 +74,14 @@ class triviagame:
         
     async def send_new_question(self, client):
         if self.game_state != "pre-question":
-            await self.channel.send("Hmm state weirdness", self.game_state)
+            await self.channel.send("Hmm state weirdness" + str(self.game_state))
             return
+            
+        if (datetime.now() - self.last_question_answered).total_seconds() > 240:  # Todo: config
+            await self.channel.send("Trivia is shutting down due to inactivity")
+            self.game_state = "stopped"
+            return
+
         self.grab_new_question()
         self.game_state = "question"
         await self.channel.send("%d: `%s`" % (random.randint(1,99), self.question))  #send question
