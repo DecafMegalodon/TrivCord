@@ -13,10 +13,13 @@ class triviatime:
         if message.channel.id not in triviatime.games or triviatime.games[message.channel.id].game_state != "question":
             return
         game = triviatime.games[message.channel.id]
+        cur_time = datetime.now()
         if game.check_answer(message.content):
-            await message.channel.send("%s got the correct answer `%s` in %d seconds" % (
+            time_diff = cur_time - game.question_start
+            elapsed = time_diff.microseconds / 1000000 + time_diff.seconds
+            await message.channel.send("%s got the correct answer `%s` in %.3f seconds" % (
                                                             message.author,                    message.content, 
-                                                            (datetime.now() - game.question_start).total_seconds() ))
+                                                            elapsed))
             if game.question_type == "standard":
                 game.game_state = "pre-question"
                 self.client.dispatch("new_question", game)
